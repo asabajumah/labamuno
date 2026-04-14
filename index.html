@@ -1,1 +1,64 @@
 
+<!DOCTYPE html>
+<html>
+<head>
+<title>Stream OTT</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<style>
+body{
+  background:#020617;
+  color:white;
+  font-family:Arial;
+}
+.card{
+  background:#1e293b;
+  padding:10px;
+  margin:10px;
+  border-radius:10px;
+}
+img{width:200px;border-radius:10px;}
+</style>
+</head>
+
+<body>
+
+<h1>My OTT Platform</h1>
+
+<div id="movies"></div>
+
+<script>
+const supabaseUrl = "https://cudtubtaggumkdrpkvjy.supabase.co";
+const supabaseKey = "sb_publishable_OJ0ZM1PnbEzHibVntQQVQA_QY48y-_B";
+
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+async function loadVideos(){
+
+  let { data } = await supabase
+    .from("videos")
+    .select("*");
+
+  let box = document.getElementById("movies");
+
+  data.forEach(v => {
+    box.innerHTML += `
+      <div class="card">
+        <img src="${v.thumbnail_url}">
+        <h3>${v.title}</h3>
+        <p>${v.description}</p>
+
+        <video width="300" controls>
+          <source src="${v.video_url}" type="video/mp4">
+        </video>
+      </div>
+    `;
+  });
+
+}
+
+loadVideos();
+</script>
+
+</body>
+</html>
