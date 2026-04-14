@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Login</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body style="background:#020617;color:white;text-align:center;font-family:Arial;">
+
+<h2>Login</h2>
+
+<input id="email" placeholder="Email"><br><br>
+<input id="password" type="password" placeholder="Password"><br><br>
+
+<button onclick="login()">Login</button>
+
+<script>
+const sb = supabase.createClient(
+  "https://cudtubtaggumkdrpkvjy.supabase.co",
+  "sb_publishable_OJ0ZM1PnbEzHibVntQQVQA_QY48y-_B"
+);
+
+async function login(){
+  let { error } = await sb.auth.signInWithPassword({
+    email: email.value,
+    password: password.value
+  });
+
+  if(!error){
+    window.location.href="index.html";
+  }else{
+    alert(error.message);
+  }
+}
+</script>
+
+</body>
+</html>
