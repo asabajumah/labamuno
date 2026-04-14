@@ -6,6 +6,9 @@
 
 <title>Laba Muno Movies</title>
 
+<!-- SEO DESCRIPTION -->
+<meta name="description" content="Laba Muno is an online streaming platform to watch Luganda translated movies, series and live TV.">
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <style>
@@ -14,37 +17,56 @@ body{
   font-family:Arial;
   background:#020617;
   color:white;
+  padding-top:70px;
 }
 
-/* HEADER */
+/* FIXED HEADER */
 .topbar{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  z-index:1000;
+
   display:flex;
   align-items:center;
-  justify-content:flex-start;
-  padding:15px 20px;
+  justify-content:space-between;
+
+  padding:12px 20px;
   background:#0f172a;
   border-bottom:1px solid #1e293b;
 }
 
 /* LOGO */
 .logo{
-  font-size:26px;
+  font-size:24px;
   font-weight:bold;
   color:#ff1e1e;
-  letter-spacing:1px;
   text-transform:uppercase;
+  letter-spacing:1px;
+}
+
+/* SEARCH */
+.search{
+  width:220px;
+  padding:8px 12px;
+  border:none;
+  border-radius:6px;
+  outline:none;
+  background:#1e293b;
+  color:white;
 }
 
 /* HERO */
 .hero{
-  height:250px;
+  height:170px;
   background:#111827;
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
   text-align:center;
-  padding:20px;
+  padding:10px;
 }
 
 .hero h1{
@@ -54,6 +76,7 @@ body{
 
 .hero p{
   color:#cbd5e1;
+  max-width:700px;
 }
 
 /* SECTION */
@@ -67,13 +90,12 @@ body{
   color:#38bdf8;
 }
 
-/* ROW SCROLL */
+/* ROW */
 .row{
   display:flex;
   overflow-x:auto;
   gap:10px;
   padding:10px;
-  scroll-behavior:smooth;
 }
 
 .row::-webkit-scrollbar{
@@ -86,7 +108,6 @@ body{
   background:#1e293b;
   border-radius:10px;
   overflow:hidden;
-  flex-shrink:0;
 }
 
 .card img{
@@ -100,20 +121,72 @@ body{
   padding:5px;
   color:#38bdf8;
 }
+
+/* LOGIN */
+.auth-box{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100vh;
+  background:#020617;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  z-index:9999;
+}
+
+.auth-box input{
+  padding:10px;
+  width:250px;
+  border:none;
+  border-radius:6px;
+}
+
+.auth-box button{
+  padding:10px 20px;
+  background:#ff1e1e;
+  color:white;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+#msg{
+  color:#38bdf8;
+}
 </style>
 </head>
 
 <body>
 
+<!-- LOGIN -->
+<div id="authBox" class="auth-box">
+  <h2>Login to Laba Muno</h2>
+
+  <input id="email" type="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+
+  <button onclick="signUp()">Sign Up</button>
+  <button onclick="login()">Login</button>
+
+  <p id="msg"></p>
+</div>
+
 <!-- HEADER -->
 <header class="topbar">
   <div class="logo">Laba Muno</div>
+  <input id="searchInput" class="search" onkeyup="searchVideos()" placeholder="Search movies, series, music...">
 </header>
 
 <!-- HERO -->
 <div class="hero">
   <h1>Welcome to Laba Muno Movies</h1>
-  <p>Watch Movies, Series & Music in one place</p>
+  <p>
+    Laba Muno is an online streaming platform to watch Luganda translated movies, series and live TV.
+  </p>
 </div>
 
 <!-- MOVIES -->
@@ -140,15 +213,73 @@ const supabaseKey = "sb_publishable_OJ0ZM1PnbEzHibVntQQVQA_QY48y-_B";
 
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
+let allVideos = [];
+
+// SIGN UP
+async function signUp(){
+  let email = document.getElementById("email").value;
+  let password = document.getElementById("password").value;
+
+  let { error } = await supabase.auth.signUp({
+    email,
+    password
+  });
+
+  document.getElementById("msg").innerText =
+    error ? error.message : "Check email to confirm account";
+}
+
+// LOGIN
+async function login(){
+  let email = document.getElementById("email").value;
+  let password = document.getElementById("password").value;
+
+  let { error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if(error){
+    document.getElementById("msg").innerText = error.message;
+  } else {
+    document.getElementById("authBox").style.display = "none";
+    loadData();
+  }
+}
+
+// CHECK USER
+async function checkUser(){
+  const { data } = await supabase.auth.getUser();
+
+  if(data.user){
+    document.getElementById("authBox").style.display = "none";
+    loadData();
+  }
+}
+
+checkUser();
+
+// LOAD DATA
 async function loadData(){
 
   let { data } = await supabase
     .from("videos")
     .select("*");
 
+  allVideos = data;
+  renderVideos(data);
+}
+
+// RENDER
+function renderVideos(data){
+
   let movies = document.getElementById("moviesRow");
   let series = document.getElementById("seriesRow");
   let music  = document.getElementById("musicRow");
+
+  movies.innerHTML = "";
+  series.innerHTML = "";
+  music.innerHTML = "";
 
   data.forEach(v => {
 
@@ -159,24 +290,25 @@ async function loadData(){
       </div>
     `;
 
-    if(v.category === "Movie"){
-      movies.innerHTML += card;
-    }
-    else if(v.category === "Series"){
-      series.innerHTML += card;
-    }
-    else if(v.category === "Music"){
-      music.innerHTML += card;
-    }
-    else{
-      movies.innerHTML += card;
-    }
+    if(v.category === "Movie") movies.innerHTML += card;
+    else if(v.category === "Series") series.innerHTML += card;
+    else if(v.category === "Music") music.innerHTML += card;
+    else movies.innerHTML += card;
 
   });
-
 }
 
-loadData();
+// SEARCH
+function searchVideos(){
+
+  let value = document.getElementById("searchInput").value.toLowerCase();
+
+  let filtered = allVideos.filter(v =>
+    v.title.toLowerCase().includes(value)
+  );
+
+  renderVideos(filtered);
+}
 </script>
 
 </body>
