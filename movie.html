@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Watch</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body style="background:#020617;color:white;font-family:Arial;">
+
+<div id="movie"></div>
+
+<script>
+const sb = supabase.createClient(
+  "https://cudtubtaggumkdrpkvjy.supabase.co",
+  "sb_publishable_OJ0ZM1PnbEzHibVntQQVQA_QY48y-_B"
+);
+
+const id = new URLSearchParams(location.search).get("id");
+
+async function load(){
+
+  let { data } = await sb.from("videos").select("*").eq("id",id).single();
+
+  document.getElementById("movie").innerHTML = `
+    <h1>${data.title}</h1>
+    <img src="${data.thumbnail_url}" width="250">
+
+    <p>${data.description || ""}</p>
+
+    <iframe width="100%" height="400" src="${data.video_url}" allowfullscreen></iframe>
+
+    <p>⭐ Rating: ${data.rating || "N/A"}</p>
+  `;
+}
+
+load();
+</script>
+
+</body>
+</html>
