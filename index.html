@@ -1,31 +1,72 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Laba Muno</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Laba Muno Movies</title>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <style>
 body{
+  margin:0;
+  font-family:Arial;
   background:#020617;
   color:white;
-  font-family:Arial;
 }
+
+/* HEADER */
+header{
+  padding:20px;
+  text-align:center;
+  font-size:28px;
+  font-weight:bold;
+  background:#0f172a;
+  border-bottom:1px solid #1e293b;
+}
+
+/* GRID */
+.container{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:15px;
+  padding:20px;
+}
+
+/* CARD */
 .card{
   background:#1e293b;
+  border-radius:12px;
   padding:10px;
-  margin:10px;
+}
+
+.card img{
+  width:100%;
   border-radius:10px;
 }
-img{width:200px;border-radius:10px;}
+
+.card h3{
+  color:#38bdf8;
+  margin:10px 0 5px;
+}
+
+.card p{
+  font-size:14px;
+  color:#cbd5e1;
+}
 </style>
 </head>
 
 <body>
 
-<h1>My OTT Platform</h1>
+<!-- HEADER -->
+<header>
+Laba Muno
+</header>
 
-<div id="movies"></div>
+<!-- CONTENT -->
+<div class="container" id="movies"></div>
 
 <script>
 const supabaseUrl = "https://cudtubtaggumkdrpkvjy.supabase.co";
@@ -48,7 +89,7 @@ async function loadVideos(){
         <h3>${v.title}</h3>
         <p>${v.description}</p>
 
-        <video width="300" controls>
+        <video width="100%" controls>
           <source src="${v.video_url}" type="video/mp4">
         </video>
       </div>
