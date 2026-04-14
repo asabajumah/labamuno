@@ -17,43 +17,88 @@ body{
 }
 
 /* HEADER */
-header{
-  padding:20px;
-  text-align:center;
-  font-size:28px;
-  font-weight:bold;
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  padding:15px 20px;
   background:#0f172a;
   border-bottom:1px solid #1e293b;
 }
 
-/* GRID */
-.container{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-  gap:15px;
+/* LOGO */
+.logo{
+  font-size:26px;
+  font-weight:bold;
+  color:#ff1e1e;
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+
+/* HERO */
+.hero{
+  height:250px;
+  background:#111827;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
   padding:20px;
+}
+
+.hero h1{
+  margin:0;
+  color:#38bdf8;
+}
+
+.hero p{
+  color:#cbd5e1;
+}
+
+/* SECTION */
+.section{
+  margin-top:20px;
+  padding:10px;
+}
+
+.section h2{
+  margin-left:10px;
+  color:#38bdf8;
+}
+
+/* ROW SCROLL */
+.row{
+  display:flex;
+  overflow-x:auto;
+  gap:10px;
+  padding:10px;
+  scroll-behavior:smooth;
+}
+
+.row::-webkit-scrollbar{
+  display:none;
 }
 
 /* CARD */
 .card{
+  min-width:200px;
   background:#1e293b;
-  border-radius:12px;
-  padding:10px;
+  border-radius:10px;
+  overflow:hidden;
+  flex-shrink:0;
 }
 
 .card img{
   width:100%;
-  border-radius:10px;
+  height:120px;
+  object-fit:cover;
 }
 
 .card h3{
-  color:#38bdf8;
-  margin:10px 0 5px;
-}
-
-.card p{
   font-size:14px;
-  color:#cbd5e1;
+  padding:5px;
+  color:#38bdf8;
 }
 </style>
 </head>
@@ -61,12 +106,33 @@ header{
 <body>
 
 <!-- HEADER -->
-<header>
-Laba Muno
+<header class="topbar">
+  <div class="logo">Laba Muno</div>
 </header>
 
-<!-- CONTENT -->
-<div class="container" id="movies"></div>
+<!-- HERO -->
+<div class="hero">
+  <h1>Welcome to Laba Muno Movies</h1>
+  <p>Watch Movies, Series & Music in one place</p>
+</div>
+
+<!-- MOVIES -->
+<div class="section">
+  <h2>🎬 Movies</h2>
+  <div class="row" id="moviesRow"></div>
+</div>
+
+<!-- SERIES -->
+<div class="section">
+  <h2>📺 Series</h2>
+  <div class="row" id="seriesRow"></div>
+</div>
+
+<!-- MUSIC -->
+<div class="section">
+  <h2>🎵 Music</h2>
+  <div class="row" id="musicRow"></div>
+</div>
 
 <script>
 const supabaseUrl = "https://cudtubtaggumkdrpkvjy.supabase.co";
@@ -74,31 +140,43 @@ const supabaseKey = "sb_publishable_OJ0ZM1PnbEzHibVntQQVQA_QY48y-_B";
 
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-async function loadVideos(){
+async function loadData(){
 
   let { data } = await supabase
     .from("videos")
     .select("*");
 
-  let box = document.getElementById("movies");
+  let movies = document.getElementById("moviesRow");
+  let series = document.getElementById("seriesRow");
+  let music  = document.getElementById("musicRow");
 
   data.forEach(v => {
-    box.innerHTML += `
+
+    let card = `
       <div class="card">
         <img src="${v.thumbnail_url}">
         <h3>${v.title}</h3>
-        <p>${v.description}</p>
-
-        <video width="100%" controls>
-          <source src="${v.video_url}" type="video/mp4">
-        </video>
       </div>
     `;
+
+    if(v.category === "Movie"){
+      movies.innerHTML += card;
+    }
+    else if(v.category === "Series"){
+      series.innerHTML += card;
+    }
+    else if(v.category === "Music"){
+      music.innerHTML += card;
+    }
+    else{
+      movies.innerHTML += card;
+    }
+
   });
 
 }
 
-loadVideos();
+loadData();
 </script>
 
 </body>
