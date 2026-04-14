@@ -43,9 +43,27 @@ body{
   text-transform:uppercase;
 }
 
-/* SEARCH */
-.search{
-  width:220px;
+/* SEARCH ICON BUTTON */
+.search-btn{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  border:none;
+  background:#1e293b;
+  color:white;
+  cursor:pointer;
+  font-size:18px;
+}
+
+/* SEARCH INPUT (hidden by default) */
+.search-box{
+  display:none;
+  position:absolute;
+  right:70px;
+}
+
+.search-box input{
+  width:200px;
   padding:8px;
   border:none;
   border-radius:6px;
@@ -64,10 +82,16 @@ body{
   text-align:center;
 }
 
-.hero h1{color:#38bdf8;margin:0;}
-.hero p{color:#cbd5e1;}
+.hero h1{
+  margin:0;
+  color:#38bdf8;
+}
 
-/* ROW */
+.hero p{
+  color:#cbd5e1;
+}
+
+/* SECTION */
 .section{
   padding:10px;
 }
@@ -82,6 +106,10 @@ body{
   gap:10px;
 }
 
+.row::-webkit-scrollbar{
+  display:none;
+}
+
 /* CARD */
 .card{
   min-width:200px;
@@ -89,13 +117,6 @@ body{
   border-radius:10px;
   overflow:hidden;
   cursor:pointer;
-  opacity:0.85;
-  transition:0.2s;
-}
-
-.card:hover{
-  opacity:1;
-  transform:scale(1.03);
 }
 
 .card img{
@@ -110,7 +131,7 @@ body{
   color:#38bdf8;
 }
 
-/* LOGIN MODAL */
+/* LOGIN */
 .auth-box{
   position:fixed;
   top:0;
@@ -141,11 +162,9 @@ body{
   border-radius:6px;
 }
 
-#msg{
-  color:#38bdf8;
-}
+#msg{ color:#38bdf8; }
 
-/* VIDEO MODAL */
+/* VIDEO */
 .video-box{
   position:fixed;
   top:0;
@@ -182,23 +201,28 @@ video{
   <p id="msg"></p>
 </div>
 
-<!-- VIDEO PLAYER -->
+<!-- VIDEO -->
 <div id="videoBox" class="video-box">
   <video id="player" controls></video>
-  <br>
   <button onclick="closeVideo()">Close</button>
 </div>
 
 <!-- HEADER -->
 <header class="topbar">
   <div class="logo">Laba Muno</div>
-  <input id="searchInput" class="search" onkeyup="searchVideos()" placeholder="Search...">
+
+  <!-- SEARCH ICON -->
+  <button class="search-btn" onclick="toggleSearch()">🔍</button>
+
+  <div class="search-box" id="searchBox">
+    <input id="searchInput" onkeyup="searchVideos()" placeholder="Search...">
+  </div>
 </header>
 
 <!-- HERO -->
 <div class="hero">
   <h1>Welcome to Laba Muno Movies</h1>
-  <p>Click any movie to watch (login required)</p>
+  <p>Stream Movies, Series & Music</p>
 </div>
 
 <!-- MOVIES -->
@@ -226,45 +250,35 @@ const supabaseKey = "sb_publishable_OJ0ZM1PnbEzHibVntQQVQA_QY48y-_B";
 const sb = supabase.createClient(supabaseUrl, supabaseKey);
 
 let allVideos = [];
-let currentUser = null;
-
-/* CHECK USER */
-async function checkUser(){
-  const { data } = await sb.auth.getUser();
-  currentUser = data.user;
-}
-checkUser();
 
 /* LOGIN */
 async function login(){
-  let email = emailInput().value;
-  let password = passInput().value;
+  let email = document.getElementById("email").value;
+  let password = document.getElementById("password").value;
 
   let { error } = await sb.auth.signInWithPassword({ email, password });
 
   if(error){
     msg(error.message);
   } else {
-    hideLogin();
+    document.getElementById("authBox").style.display = "none";
     loadData();
   }
 }
 
 /* SIGN UP */
 async function signUp(){
-  let email = emailInput().value;
-  let password = passInput().value;
+  let email = document.getElementById("email").value;
+  let password = document.getElementById("password").value;
 
   let { error } = await sb.auth.signUp({ email, password });
 
   msg(error ? error.message : "Check email to confirm");
 }
 
-/* LOAD VIDEOS */
+/* LOAD */
 async function loadData(){
-
   let { data } = await sb.from("videos").select("*");
-
   allVideos = data;
   render(data);
 }
@@ -296,9 +310,8 @@ function render(data){
   });
 }
 
-/* CLICK PROTECTION */
+/* OPEN VIDEO */
 async function openVideo(url){
-
   const { data } = await sb.auth.getUser();
 
   if(!data.user){
@@ -312,12 +325,10 @@ async function openVideo(url){
 
 function closeVideo(){
   document.getElementById("videoBox").style.display = "none";
-  document.getElementById("player").pause();
 }
 
 /* SEARCH */
 function searchVideos(){
-
   let value = document.getElementById("searchInput").value.toLowerCase();
 
   let filtered = allVideos.filter(v =>
@@ -327,11 +338,15 @@ function searchVideos(){
   render(filtered);
 }
 
-/* HELPERS */
-function emailInput(){ return document.getElementById("email"); }
-function passInput(){ return document.getElementById("password"); }
-function msg(t){ document.getElementById("msg").innerText = t; }
-function hideLogin(){ document.getElementById("authBox").style.display="none"; }
+/* SEARCH TOGGLE */
+function toggleSearch(){
+  let box = document.getElementById("searchBox");
+  box.style.display = box.style.display === "block" ? "none" : "block";
+}
+
+function msg(t){
+  document.getElementById("msg").innerText = t;
+}
 
 loadData();
 </script>
