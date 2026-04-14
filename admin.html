@@ -1,135 +1,29 @@
-
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Laba Muno Admin</title>
-
+<title>Admin</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
-body{
-  margin:0;
-  font-family:Arial;
-  background:#0b1220;
-  color:white;
-}
-
-/* SIDEBAR */
-.sidebar{
-  position:fixed;
-  top:0;
-  left:0;
-  width:240px;
-  height:100vh;
-  background:#0f172a;
-  padding:20px;
-}
-
-.sidebar h2{
-  color:#ff1e1e;
-}
-
-.menu a{
-  display:block;
-  padding:10px;
-  color:#cbd5e1;
-  text-decoration:none;
-  margin-top:5px;
-  border-radius:6px;
-}
-
-.menu a:hover{
-  background:#1e293b;
-}
-
-/* MAIN */
-.main{
-  margin-left:260px;
-  padding:20px;
-}
-
-/* CARDS */
-.cards{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:15px;
-}
-
-.card{
-  background:#1e293b;
-  padding:15px;
-  border-radius:10px;
-}
-
-/* UPLOAD */
-input,select{
-  width:100%;
-  padding:10px;
-  margin:5px 0;
-  border:none;
-  border-radius:6px;
-  background:#0b1220;
-  color:white;
-}
-
-button{
-  padding:10px 15px;
-  border:none;
-  background:#ff1e1e;
-  color:white;
-  border-radius:6px;
-  cursor:pointer;
-}
-</style>
 </head>
 
-<body>
+<body style="background:#0b1220;color:white;font-family:Arial;">
 
-<!-- SIDEBAR -->
-<div class="sidebar">
-  <h2>Laba Muno</h2>
+<h1>Admin Upload</h1>
 
-  <div class="menu">
-    <a href="#">Dashboard</a>
-    <a href="#">Upload</a>
-    <a href="#">Videos</a>
-    <a href="#">Users</a>
-    <a href="#">Settings</a>
-  </div>
-</div>
+<input id="title" placeholder="Title"><br><br>
+<input id="thumb" placeholder="Thumbnail"><br><br>
+<input id="video" placeholder="Video URL"><br><br>
 
-<!-- MAIN -->
-<div class="main">
+<select id="cat">
+  <option>Movie</option>
+  <option>Series</option>
+</select><br><br>
 
-  <h1>📊 Dashboard</h1>
+<label>
+Premium:
+<input type="checkbox" id="premium">
+</label><br><br>
 
-  <div class="cards">
-    <div class="card">Total Videos: <span id="tv">0</span></div>
-    <div class="card">Movies</div>
-    <div class="card">Users</div>
-  </div>
-
-  <h2>🎬 Upload Video</h2>
-
-  <input id="title" placeholder="Title">
-  <input id="video" placeholder="Video URL">
-  <input id="thumb" placeholder="Thumbnail URL">
-
-  <select id="cat">
-    <option>Movie</option>
-    <option>Series</option>
-    <option>Music</option>
-  </select>
-
-  <button onclick="upload()">Upload</button>
-
-  <h2>Recent Videos</h2>
-  <div id="list"></div>
-
-</div>
+<button onclick="upload()">Upload</button>
 
 <script>
 const sb = supabase.createClient(
@@ -138,37 +32,16 @@ const sb = supabase.createClient(
 );
 
 async function upload(){
-
   await sb.from("videos").insert([{
-    title: document.getElementById("title").value,
-    video_url: document.getElementById("video").value,
-    thumbnail_url: document.getElementById("thumb").value,
-    category: document.getElementById("cat").value
+    title:title.value,
+    thumbnail_url:thumb.value,
+    video_url:video.value,
+    category:cat.value,
+    premium:premium.checked
   }]);
 
-  load();
+  alert("Uploaded!");
 }
-
-async function load(){
-
-  let { data } = await sb.from("videos").select("*");
-
-  document.getElementById("tv").innerText = data.length;
-
-  let list = document.getElementById("list");
-  list.innerHTML = "";
-
-  data.forEach(v=>{
-    list.innerHTML += `
-      <div class="card">
-        <b>${v.title}</b><br>
-        <small>${v.category}</small>
-      </div>
-    `;
-  });
-}
-
-load();
 </script>
 
 </body>
